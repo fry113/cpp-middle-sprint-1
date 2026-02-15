@@ -24,7 +24,7 @@
     }
   },
   "mounts": [
-    "source=C:/.gitconfig,target=/home/dev/.gitconfig,type=bind,consistency=cached",
+    "source=D:/0_git/.gitconfig,target=/home/dev/.gitconfig,type=bind,consistency=cached",
     "source=C:/.conan2,target=/home/dev/.conan2,type=bind,consistency=cached"
   ]
 }

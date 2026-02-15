@@ -2,9 +2,8 @@
 
 #include "boost/program_options.hpp"
 #include <string>
-#include <unordered_map>
 #include <string_view>
-
+#include <unordered_map>
 
 namespace CryptoGuard {
 
@@ -17,6 +16,7 @@ public:
         ENCRYPT,
         DECRYPT,
         CHECKSUM,
+        CMD_QUAN,
     };
 
     void Parse(int argc, char *argv[]);
@@ -27,7 +27,7 @@ public:
     std::string GetPassword() const { return password_; }
 
 private:
-    COMMAND_TYPE command_;
+    COMMAND_TYPE command_ = COMMAND_TYPE::CMD_QUAN;
     const std::unordered_map<std::string_view, COMMAND_TYPE> commandMapping_ = {
         {"encrypt", ProgramOptions::COMMAND_TYPE::ENCRYPT},
         {"decrypt", ProgramOptions::COMMAND_TYPE::DECRYPT},
