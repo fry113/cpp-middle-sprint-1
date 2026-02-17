@@ -39,7 +39,6 @@ void ProgramOptions::Parse(int argc, char *argv[]) {
             std::cout << "Unknown command. Please check avaliable commands in help below." << std::endl;
             std::cout << desc_ << std::endl;
             throw std::invalid_argument(vm["command"].as<std::string>());
-            // return;
         }
     }
 

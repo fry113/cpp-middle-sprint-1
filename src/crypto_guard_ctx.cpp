@@ -7,7 +7,6 @@
 #include <string>
 #include <vector>
 
-
 namespace CryptoGuard {
 
 class CryptoGuardCtx::Impl {
@@ -75,7 +74,8 @@ std::string CryptoGuardCtx::Impl::CalculateChecksum(std::iostream &inStream) {
     }
 
     // Обрабатываем входной поток
-    uint inLen, outLen;
+    uint inLen;
+    uint outLen;
     inStream.seekg(0, std::ios::beg);
     while (true) {
         inStream.read(reinterpret_cast<char *>(inBuf.data()), inBuf.size());
@@ -101,7 +101,7 @@ std::string CryptoGuardCtx::Impl::CalculateChecksum(std::iostream &inStream) {
     }
 
     std::stringstream ss;
-    for (auto i = 0; i < outBuf.size(); ++i) {
+    for (size_t i = 0; i < outBuf.size(); ++i) {
         ss << std::hex << std::setw(2) << std::setfill('0') << static_cast<unsigned int>(outBuf[i]);
     }
     return ss.str();
@@ -128,9 +128,10 @@ void CryptoGuardCtx::Impl::do_cipher(std::iostream &inStream, std::iostream &out
     }
 
     // Обрабатываем входной поток
-    int outLen, inLen;
+    int outLen;
+    int inLen;
     inStream.seekg(0, std::ios::beg);
-    outStream.seekg(0, std::ios::beg);
+    outStream.seekp(0, std::ios::beg);
     while (true) {
         inStream.read(reinterpret_cast<char *>(inBuf.data()), inBuf.size());
         inLen = inStream.gcount();
@@ -156,6 +157,9 @@ void CryptoGuardCtx::Impl::do_cipher(std::iostream &inStream, std::iostream &out
     if (!EVP_CipherFinal_ex(ctx.get(), outBuf.data(), &outLen)) {
         throwOpenSSLerrors();
     }
+    if (outLen > outBuf.size()) {
+        throw std::runtime_error("EVP_CipherFinal_ex exceeded return value size");
+    }
     if (outLen > 0) {
         if (!outStream.write(reinterpret_cast<const char *>(outBuf.data()), outLen)) {
             throw std::runtime_error("outStream final write error");
@@ -165,7 +169,7 @@ void CryptoGuardCtx::Impl::do_cipher(std::iostream &inStream, std::iostream &out
 
 void CryptoGuardCtx::Impl::Encrypt(std::iostream &inStream, std::iostream &outStream, std::string_view password) {
     if (password.empty()) {
-        throw std::runtime_error("Empty password]");
+        throw std::runtime_error("Empty password");
     }
     params = CreateChiperParamsFromPassword(password);
     params.encrypt = 1;
