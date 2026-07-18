@@ -1,128 +1,134 @@
-# cpp-middle-project-sprint-1 <!-- omit in toc -->
+# CryptoGuard
 
-- [До начала использования Docker контейнера: Настройка переменных окружения](#до-начала-использования-docker-контейнера-настройка-переменных-окружения)
-- [Начало работы](#начало-работы)
-- [Сборка проекта и запуск тестов](#сборка-проекта-и-запуск-тестов)
-  - [Команды для сборки проекта](#команды-для-сборки-проекта)
-  - [Команды для запуска приложения](#команды-для-запуска-приложения)
-  - [Команда для запуска тестов](#команда-для-запуска-тестов)
-  - [Команда для запуска clang-format — обязательное требование перед сдачей работы на ревью](#команда-для-запуска-clang-format--обязательное-требование-перед-сдачей-работы-на-ревью)
-  - [Команды для запуска отладчика](#команды-для-запуска-отладчика)
-- [Дополнительно](#дополнительно)
+CryptoGuard - C++ библиотека для работы с файлами:
 
+- шифрование и расшифровка (AES-256-CBC, OpenSSL EVP),
+- вычисление контрольной суммы (SHA-256),
+- простой CLI-инструмент поверх библиотечного API.
 
-Шаблон репозитория для практического задания 1-го спринта «Мидл разработчик С++»
+Проект собирается через Conan + CMake и включает unit-тесты на GoogleTest.
 
-## До начала использования Docker контейнера: Настройка переменных окружения
+## Возможности
 
-Для корректной работы контейнера добавьте в ваш bash-профиль две переменные окружения и обновите его, выполнив следующие команды:
+- Библиотечный API в пространстве имен `CryptoGuard`.
+- Шифрование файлов с паролем.
+- Расшифровка файлов с тем же паролем.
+- Расчет SHA-256 для входного потока.
+- CLI с командами `encrypt`, `decrypt`, `checksum`.
 
-```bash
-# Set USER_UID and USER_GID
-echo -e '\nexport USER_UID=$(id -u)\nexport USER_GID=$(id -g)' >> ~/.bashrc
+## Структура проекта
 
-# Update bash-profile
-source ~/.bashrc
-```
+- `include/crypto_guard_ctx.h` - публичный интерфейс библиотеки.
+- `include/cmd_options.h` - интерфейс разбора параметров CLI.
+- `src/crypto_guard_ctx.cpp` - реализация криптоопераций.
+- `src/cmd_options.cpp` - реализация парсинга аргументов.
+- `src/main.cpp` - консольное приложение `CryptoGuard`.
+- `tests/` - unit-тесты.
 
-Перед началом работы с Docker контейнером, убедитесь, что переменные окружения доступны, внутри используемой вами IDE (например в терминале внутри VS Code):
+## Требования
 
-```bash
-printf "\nUSER_UID=${USER_UID=}\nUSER_GID=${USER_GID}\n\n"
-```
+- C++23 компилятор (GCC/Clang).
+- Conan 2.x.
+- CMake 3.30+.
 
-## Начало работы
+Основные зависимости:
 
-1. Убедитесь, что переменные окружения из предыдущего шага доступны внутри вашей IDE
-2. Нажмите зелёную кнопку `Use this template`, затем `Create a new repository`.
-3. Назовите свой репозиторий.
-4. Склонируйте созданный репозиторий командой `git clone your-repository-name`.
-5. Создайте новую ветку командой `git switch -c development`.
-6. Откройте проект в `Visual Studio Code`.
-7. Нажмите `F1` и откройте проект в dev-контейнере командой `Dev Containers: Reopen in Container`.
+- OpenSSL
+- Boost.Program_options
+- GTest
 
-![Reopen in container](misc/reopen_in_container.png)
+## Сборка
 
-## Сборка проекта и запуск тестов
+### Вариант 1: через задачи VS Code
 
-Данный репозиторий использует три инструмента:
+Запустите одну из задач:
 
-- **Conan** — свободный менеджер пакетов для C и C++ с открытым исходным кодом (MIT). Позволяет настраивать процесс сборки программ, скачивать и устанавливать сторонние зависимости и необходимые инструменты. Подробнее о Conan:
-  - https://habr.com/ru/articles/884464
-  - https://docs.conan.io/2.0/tutorial/consuming_packages/build_simple_cmake_project.html
-  - https://docs.conan.io/2.0/tutorial/consuming_packages/the_flexibility_of_conanfile_py.html
+- `GCC: Build Debug`
+- `GCC: Build Release`
 
-- **cmake** — генератор систем сборки для C и C++. Позволяет создавать проекты, которые могут компилироваться на различных платформах и с различными компиляторами. Подробнее о cmake:
-  - https://dzen.ru/a/ZzZGUm-4o0u-IQlb
-  - https://neerc.ifmo.ru/wiki/index.php?title=CMake_Tutorial
-  - https://cmake.org/cmake/help/book/mastering-cmake/cmake/Help/guide/tutorial/index.html
-
-- **VS Code Dev Docker container** - Docker контейнер, который содержит полностью настроенное окружение для выполнение задания. Подробнее об этой функциональности:
-  - https://habr.com/ru/articles/822707/ - "Почти все, что вы хотели бы знать про Docker"
-  - https://code.visualstudio.com/docs/devcontainers/containers - официальная документация VS Code
-  - https://www.youtube.com/watch?v=p9L7YFqHGk4 - "Docker container for VS Code"
-  - https://www.youtube.com/watch?v=pg19Z8LL06w&t=174s&pp=ygUPRG9ja2VyY29udGFpbmVy - "Docker in 1 hour"
-
-### Команды для сборки проекта
-
-Используйте `F5` для выполнения следующих шагов:
-- Создания папки `build`
-- Вызова `conan` команд для установки требуемых библиотек и запуска процесса сборки
-- Запуска `lldb` отладчика
-
-Также, вы можете запустить только команду построения проекта. Для этого:
-
-- вызовите командное окно, нажав `F1`
-
-- Выберите команду `Tasks: Run Task`
-
-![](misc/select_vscode_tasks.png)
-
-- Выберите команду сборки проекта, например `GCC: Build Debug app`
-
-![](misc/select_concrete_task.png)
-
-### Команды для запуска приложения
+### Вариант 2: из терминала
 
 ```bash
+mkdir -p build
 cd build
+conan build -b missing -s build_type=Debug ..
+```
+
+Для релизной конфигурации:
+
+```bash
+conan build -b missing -s build_type=Release ..
+```
+
+После сборки в директории `build/` будут доступны:
+
+- `CryptoGuard` - CLI-приложение,
+- `unit_tests` - тесты.
+
+## Использование библиотеки
+
+Публичный API класса `CryptoGuard::CryptoGuardCtx`:
+
+- `EncryptFile(std::iostream&, std::iostream&, std::string_view password)`
+- `DecryptFile(std::iostream&, std::iostream&, std::string_view password)`
+- `CalculateChecksum(std::iostream&) -> std::string`
+
+Пример:
+
+```cpp
+#include "crypto_guard_ctx.h"
+#include <sstream>
+
+int main() {
+    CryptoGuard::CryptoGuardCtx ctx;
+
+    std::stringstream plain;
+    std::stringstream encrypted;
+    std::stringstream decrypted;
+
+    plain << "hello";
+    ctx.EncryptFile(plain, encrypted, "pass123");
+    ctx.DecryptFile(encrypted, decrypted, "pass123");
+
+    auto checksum = ctx.CalculateChecksum(decrypted);
+    (void)checksum;
+}
+```
+
+## Использование CLI
+
+Справка:
+
+```bash
+./build/CryptoGuard --help
+```
+
+Аргументы:
+
+- `-c, --command` - команда: `encrypt`, `decrypt`, `checksum`
+- `-i, --input` - входной файл (по умолчанию `input.txt`)
+- `-o, --output` - выходной файл (по умолчанию `output.txt`)
+- `-p, --password` - пароль (по умолчанию `testpwd`)
+
+Примеры:
+
+```bash
 echo "Hello OpenSSL crypto world!" > input.txt
 
-./CryptoGuard -i input.txt     -o encrypted.txt -p 1234 --command encrypt
-./CryptoGuard -i encrypted.txt -o decrypted.txt -p 1234 --command decrypt
-
-./CryptoGuard -i input.txt     --command checksum
-./CryptoGuard -i decrypted.txt --command checksum
+./build/CryptoGuard -c encrypt  -i input.txt     -o encrypted.bin -p 1234
+./build/CryptoGuard -c decrypt  -i encrypted.bin -o decrypted.txt -p 1234
+./build/CryptoGuard -c checksum -i input.txt
+./build/CryptoGuard -c checksum -i decrypted.txt
 ```
 
-### Команда для запуска тестов
+## Запуск тестов
 
-Для запуска тестов вы можете воспользоваться удобным расширением `C++ TestMate`:
+```bash
+./build/unit_tests
+```
 
-![](misc/test_mate.png)
+## Важные замечания
 
-### Команда для запуска clang-format — обязательное требование перед сдачей работы на ревью
-
-В этом репозитории настроен автоматический запуск clang-format (файл конфигурации — .vscode/settings.json) при сохранении любого файла с кодом.
-
-Убедитесь, что эта функциональность работает:
-- Добавьте несколько пустых линий в любой файл.
-- Сохраните файл.
-- Если пустые линии были удалены, всё работает, если нет — убедитесь, что clangd работает (при открытии файла с кодом в самом низу VS Code на голубой полоске должно быть написано clangd: idle). Для этого:
-    - нажмите `F1` и выполните команду `clangd: Download language server`;
-    - нажмите `F1` и выполните команду `clangd: Restart language server`;
-    - нажмите `F1` и выполните команду `Developer: Reload Window`.
-
-### Команды для запуска отладчика
-
-В Visual Studio Code настройки параметров для запуска отладчика находятся в файле .vscode/launch.json. Поскольку в этом файле для запуска приложения уже есть одна конфигурация `Launch *`, то для запуска отладчика достаточно нажать F5 или открыть окно Run and Debug комбинацией клавиш `Ctrl+Shift+D`.
-
-## Дополнительно
-
-Для настройки автодополнения `Ctrl + Space` нажмите `F1` и выполните команду `clangd: Download language server`. VS Code сам предложит установить подходящую версию clangd (всплывашка в правом нижнем углу). После завершения установки перезагрузите окно кнопкой перезапуска справа снизу или с помощью `F1` и выполните команду `Developer: Reload Window`.
-
-Если всё сделали правильно, то после успешной сборки проекта вы сможете использовать автодополнение.
-
-![Скриншот 2](misc/clangd_1.png)
-
-![Скриншот 3](misc/clangd_2.png)
+- Проект учебный и ориентирован на демонстрацию архитектуры и API.
+- Сейчас ключ/IV детерминированно выводятся из пароля и фиксированной соли.
+- Для production-использования требуется усиление криптографической схемы (случайная соль/IV, KDF с большим числом итераций, хранение метаданных шифрования).
