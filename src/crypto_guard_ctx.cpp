@@ -1,5 +1,4 @@
 #include "crypto_guard_ctx.h"
-// #include <algorithm>
 #include <array>
 #include <iomanip>
 #include <openssl/err.h>
@@ -38,7 +37,7 @@ public:
     std::string CalculateChecksum(std::iostream &inStream);
 
 private:
-    AesCipherParams CreateChiperParamsFromPassword(std::string_view password);
+    AesCipherParams CreateCipherParamsFromPassword(std::string_view password);
     void do_cipher(std::iostream &inStream, std::iostream &outStream);
     void throwOpenSSLerrors();
 
@@ -171,7 +170,7 @@ void CryptoGuardCtx::Impl::Encrypt(std::iostream &inStream, std::iostream &outSt
     if (password.empty()) {
         throw std::runtime_error("Empty password");
     }
-    params = CreateChiperParamsFromPassword(password);
+    params = CreateCipherParamsFromPassword(password);
     params.encrypt = 1;
     do_cipher(inStream, outStream);
 }
@@ -180,12 +179,12 @@ void CryptoGuardCtx::Impl::Decrypt(std::iostream &inStream, std::iostream &outSt
     if (password.empty()) {
         throw std::runtime_error("Empty password");
     }
-    params = CreateChiperParamsFromPassword(password);
+    params = CreateCipherParamsFromPassword(password);
     params.encrypt = 0;
     do_cipher(inStream, outStream);
 }
 
-CryptoGuardCtx::Impl::AesCipherParams CryptoGuardCtx::Impl::CreateChiperParamsFromPassword(std::string_view password) {
+CryptoGuardCtx::Impl::AesCipherParams CryptoGuardCtx::Impl::CreateCipherParamsFromPassword(std::string_view password) {
     AesCipherParams params;
     constexpr std::array<unsigned char, 8> salt = {'1', '2', '3', '4', '5', '6', '7', '8'};
 

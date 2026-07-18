@@ -113,8 +113,8 @@ TEST(CryptoGuardCtx, ChecksumCheck1) {
 }
 
 TEST(CryptoGuardCtx, ChecksumCheck2) {
-    std::string input = "veryVeryLongString_blablablaBLA! witch spacebars! 1234567890 1234567890 1234567890 1234567890";
-    std::string cntrlVal = "6bf0a4bf09f3dee900441cafece7fae9a9e097a4a0804d3f9b918a3979c3f563";
+    std::string input = "veryVeryLongString_blablablaBLA! with spacebars! 1234567890 1234567890 1234567890 1234567890";
+    std::string cntrlVal = "92e2a2aedfe75206f1281771823f61605367a7eeb7533a310994ea7d49705870";
 
     CryptoGuard::CryptoGuardCtx cryptoCtx;
     std::stringstream inStream;
@@ -143,7 +143,7 @@ TEST(CryptoGuardCtx, EmptyPassCheck) {
 }
 
 TEST(CryptoGuardCtx, EncryptDecryptChecksumCheck) {
-    std::string input = "veryVeryLongString_blablablaBLA! witch spacebars! 1234567890 1234567890 1234567890 1234567890";
+    std::string input = "veryVeryLongString_blablablaBLA! with spacebars! 1234567890 1234567890 1234567890 1234567890";
     std::string password = "casual_pwd";
     CryptoGuard::CryptoGuardCtx cryptoCtx;
     std::stringstream inStream, out1Stream, out2Stream;

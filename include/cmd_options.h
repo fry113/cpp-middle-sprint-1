@@ -16,7 +16,7 @@ public:
         ENCRYPT,
         DECRYPT,
         CHECKSUM,
-        CMD_QUAN,
+        CMD_QUAN  // number of commands
     };
 
     void Parse(int argc, char *argv[]);
